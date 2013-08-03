@@ -1,6 +1,8 @@
 
 module RNN
-       where
+( setValueInNet
+, createNetwork
+) where
 
 import System.Random
 
@@ -15,6 +17,7 @@ printValue i ns = do
   print (getValue n)
 
 -- Set Node value for a network at a given index.
+-- Todo: Give this function a better name
 setValueInNet :: Int -> Int -> IO [Node] -> IO [Node]
 setValueInNet v i ns = do
   n <- fmap (!! i) ns
