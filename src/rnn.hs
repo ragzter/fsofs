@@ -2,13 +2,40 @@
 module RNN
 ( setValueInNet
 , createNetwork
+, createWeights
+, step
 ) where
 
+import Data.List
 import System.Random
 
 data Node = N Int Int
 
 maxAmplitude = 2147483647 :: Int
+
+-- Make one random node-to-node computation.
+step :: IO [Node] -> IO [Double] -> IO [Node]
+step ns ws = do
+  pns <- ns
+  pws <- ws
+  is <- uniqueIndices $ length pns
+  let cn = pns !! (fst is)
+      hn = pns !! (snd is)
+      t = getThreshold hn
+      cv = getValue cn
+      w = getWeight (fst is) (snd is) pws
+      str = round $ (fromIntegral cv) * w
+  if str > t
+    then setValueInNet str (snd is) ns
+    else ns
+
+-- Compute two unique numbers with a given maximum.
+uniqueIndices :: Int -> IO (Int, Int)
+uniqueIndices m = do
+  i <- randomRIO(0, m - 1)
+  r <- randomRIO(0, m - 2)
+  let j = (except i [0..m]) !! r
+  return (i, j)
 
 -- Print value in network at given index.
 printValue :: Int -> IO [Node] -> IO ()
@@ -31,6 +58,10 @@ update v i xs = (take i xs) ++ [v] ++ (drop (i + 1) xs)
 -- Get Node value.
 getValue :: Node -> Int
 getValue (N _ v) = v
+
+-- Get Node threshold.
+getThreshold :: Node -> Int
+getThreshold (N t _) = t
 
 -- Change Node value.
 setValue :: Int -> Node -> Node
