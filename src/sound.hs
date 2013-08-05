@@ -1,6 +1,4 @@
 
--- Todo: Flip parameters on either `lowpass' or `arithmeticMean'?
-
 module Sound
 ( highpass
 , lowpass
