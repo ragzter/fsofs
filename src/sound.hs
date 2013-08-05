@@ -21,7 +21,7 @@ lowpass xs s = (arithmeticMean s xs) : (lowpass (tail xs) s)
 -- Defunct
 highpass :: [Integer] -> Integer -> [Integer]
 highpass [] _ = []
-highpass xs s = reverse $ lowpass (reverse xs) s
+highpass xs s = zipWith (-) xs (lowpass xs s)
 
 -- Take a range and a list of integers as arguments and compute
 -- arithmetic mean from beginning of list.
