@@ -18,7 +18,6 @@ lowpass [] _ = []
 lowpass xs s = (arithmeticMean s xs) : (lowpass (tail xs) s)
 
 -- Compute highpass filter on a list of integers for a given range.
--- Defunct
 highpass :: [Integer] -> Integer -> [Integer]
 highpass [] _ = []
 highpass xs s = zipWith (-) xs (lowpass xs s)
