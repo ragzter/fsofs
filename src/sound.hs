@@ -12,18 +12,16 @@ sampleRate = 44100
 channel = []
 maxVelocity = 2147483647
 
--- Compute highpass filter on a list of integers for a given range.
-highpass :: [Int] -> Double -> [Int]
-highpass [x] _ = [x]
-highpass (x:y:xs) s = (round (((realToFrac x) - (realToFrac y) / s))) : (highpass (y:xs) s)
-
 -- Compute lowpass filter on a list of integers for a given range.
--- Defunct
 lowpass :: [Integer] -> Integer -> [Integer]
 lowpass [] _ = []
 lowpass xs s = (arithmeticMean s xs) : (lowpass (tail xs) s)
 
--- lowpass xs s = reverse $ highpass (reverse xs) s
+-- Compute highpass filter on a list of integers for a given range.
+-- Defunct
+highpass :: [Integer] -> Integer -> [Integer]
+highpass [] _ = []
+highpass xs s = reverse $ lowpass (reverse xs) s
 
 -- Take a range and a list of integers as arguments and compute
 -- arithmetic mean from beginning of list.
