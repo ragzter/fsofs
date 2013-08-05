@@ -14,5 +14,5 @@ main = do
     $ iltob
     $ to32BitL
     -- $ saw 140 114748364 1000
-    $ lowpass (saw 140 114748364 1000) 1 -- Big endian output
+    $ lowpass (saw 140 114748364 1000) 100 -- Big endian output
   hClose handle
