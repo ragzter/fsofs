@@ -25,7 +25,6 @@ highpass xs s = reverse $ lowpass (reverse xs) s
 
 -- Take a range and a list of integers as arguments and compute
 -- arithmetic mean from beginning of list.
--- Defunct, probably because Int doesn't fit sum sometimes
 arithmeticMean :: Integer -> [Integer] -> Integer
 arithmeticMean r = (flip div r) . sum . take ri
   where ri = (fromIntegral r) :: Int
