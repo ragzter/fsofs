@@ -13,24 +13,28 @@ channel = []
 maxVelocity = 2147483647
 
 -- Compute highpass filter on a list of integers for a given range.
--- Defunct
-highpass :: [Int] -> Int -> [Int]
+highpass :: [Int] -> Double -> [Int]
 highpass [x] _ = [x]
-highpass xs r = arithmeticMean r xs : highpass (tail xs) r
+highpass (x:y:xs) s = (round (((realToFrac x) - (realToFrac y) / s))) : (highpass (y:xs) s)
 
 -- Compute lowpass filter on a list of integers for a given range.
 -- Defunct
-lowpass :: [Int] -> Int -> [Int]
-lowpass xs r = reverse $ highpass (reverse xs) r
+lowpass :: [Integer] -> Integer -> [Integer]
+lowpass [] _ = []
+lowpass xs s = (arithmeticMean s xs) : (lowpass (tail xs) s)
+
+-- lowpass xs s = reverse $ highpass (reverse xs) s
 
 -- Take a range and a list of integers as arguments and compute
 -- arithmetic mean from beginning of list.
-arithmeticMean :: Int -> [Int] -> Int
-arithmeticMean r = flip div r . sum . take r
+-- Defunct, probably because Int doesn't fit sum sometimes
+arithmeticMean :: Integer -> [Integer] -> Integer
+arithmeticMean r = (flip div r) . sum . take ri
+  where ri = (fromIntegral r) :: Int
 
 -- Generate sawtooth wave at given frequency, velocity and period (in
 -- milliseconds).
-saw :: Int -> Int -> Int -> [Int]
+saw :: Integer -> Integer -> Integer -> [Integer]
 saw f v p = map ((*) rv .
                  flip (-) (rdf `div` 2) .
                  flip mod rdf) [0..ss]
@@ -40,7 +44,7 @@ saw f v p = map ((*) rv .
 
 -- Generate sine wave at given frequency, velocity and period (in
 -- milliseconds).
-sine :: Int -> Int -> Int -> [Int]
+sine :: Integer -> Integer -> Integer -> [Integer]
 sine f v p = map (round .
                   (*) (realToFrac v) .
                   sin .
@@ -48,9 +52,9 @@ sine f v p = map (round .
                   (*) (fromIntegral f) .
                   (*) pi .
                   (*) 2 .
-                  fromIntegral) [0..ss] :: [Int]
+                  fromIntegral) [0..ss]
   where ss = msToNSamples p
 
 -- Convert time in milliseconds to number of samples.
-msToNSamples :: Int -> Int
+msToNSamples :: Integer -> Integer
 msToNSamples ms = ms * sampleRate `div` 1000

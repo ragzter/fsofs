@@ -16,9 +16,9 @@ iltob (x:xs) = BL.append (encode x) (iltob xs)
 
 -- Convert Int to Int32
 -- Todo: Check if clipping?
-to32Bit :: Int -> Int32
+to32Bit :: Integer -> Int32
 to32Bit x = (fromIntegral x) :: Int32
 
 -- Convert List of Int to List of Int32
-to32BitL :: [Int] -> [Int32]
+to32BitL :: [Integer] -> [Int32]
 to32BitL = map to32Bit

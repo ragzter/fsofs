@@ -10,5 +10,9 @@ import qualified Data.ByteString.Lazy as BL
 main :: IO ()
 main = do
   handle <- openFile "test.raw" WriteMode
-  BL.hPut handle $ iltob $ to32BitL $ lowpass (saw 440 1147483647 1000) 10 -- Big endian output
+  BL.hPut handle
+    $ iltob
+    $ to32BitL
+    -- $ saw 140 114748364 1000
+    $ lowpass (saw 140 114748364 1000) 1 -- Big endian output
   hClose handle
