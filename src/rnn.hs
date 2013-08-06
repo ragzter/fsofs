@@ -44,12 +44,15 @@ uniqueIndices :: Int -> IO (Int, Int)
 uniqueIndices m = do
   i <- randomRIO(0, m - 1)
   r <- randomRIO(0, m - 2)
-  let j = (except i [0..m]) !! r
+  let j = (except i [0..(m - 1)]) !! r
   return (i, j)
 
 -- Get weight between two nodes for RNN.
 getWeight :: Int -> Int -> Network -> Double
-getWeight a b n = (weights n) !! ((a * b) - 1)
+getWeight a b n = if i < 0
+                  then (weights n) !! 0
+                  else (weights n) !! i
+  where i = (a * (b - 1)) - 1
 
 -- Change element in List at given index.
 update :: a -> Int -> [a] -> [a]
