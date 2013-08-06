@@ -5,7 +5,6 @@ module Sound
 , saw
 , sine
 , mix
-, fadeOut
 ) where
 
 import Convert
