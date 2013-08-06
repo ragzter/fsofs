@@ -4,7 +4,10 @@ module Sound
 , lowpass
 , saw
 , sine
+, mix
 ) where
+
+import RNN
 
 sampleRate = 44100
 channel = []
@@ -35,6 +38,9 @@ saw f v p = map ((*) rv .
   where ss = msToNSamples p
         rdf = sampleRate `div` f
         rv = v `div` (rdf `div` 2)
+
+mix :: [Integer] -> [Integer] -> [Integer]
+mix = zipWith (+)
 
 -- Generate sine wave at given frequency, velocity and period (in
 -- milliseconds).
