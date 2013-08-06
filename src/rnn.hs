@@ -1,7 +1,7 @@
 
 module RNN
 ( createNetwork
-, evolve
+, step
 , values
 , mesh
 ) where
@@ -24,24 +24,13 @@ mesh n t = mesh' n t []
 
 mesh' :: Network -> Integer -> [Integer] -> IO [Integer]
 mesh' n 1 vs = do
-  nn <- evolve n
+  nn <- step n
   return $ values nn
 mesh' n t vs = do
-  nn <- evolve n
+  nn <- step n
   nivs <- mesh' n (t - 1) vs
   let nvs = values nn
   return $ nvs ++ nivs
-
--- Step Network (n * (n - 1) * n) times.
-evolve :: Network -> IO Network
-evolve n = evolve' n (2 * l * (l - 1))
-  where l = length (values n)
-
-evolve' :: Network -> Int -> IO Network
-evolve' n 1 = step n
-evolve' n t = do
-  nn <- step n
-  evolve' nn (t - 1)
 
 -- Make one random neural computation.
 step :: Network -> IO Network
