@@ -1,33 +1,43 @@
 
 module RNN
-( setValueInNet
-, createNetwork
-, createWeights
-, step
+( createNetwork
+, evolve
+, values
 ) where
 
 import Data.List
 import System.Random
+import Control.Monad
 
-data Node = N Int Int
+data Network = Network { values :: [Integer]
+                       , thresholds :: [Integer]
+                       , weights :: [Double]
+                       } deriving Show
 
-maxAmplitude = 2147483647 :: Int
+maxAmplitude = 2147483647 :: Integer
 
--- Make one random node-to-node computation.
-step :: IO [Node] -> IO [Double] -> IO [Node]
-step ns ws = do
-  pns <- ns
-  pws <- ws
-  is <- uniqueIndices $ length pns
-  let cn = pns !! (fst is)
-      hn = pns !! (snd is)
-      t = getThreshold hn
-      cv = getValue cn
-      w = getWeight (fst is) (snd is) pws
+-- Step Network (n * (n - 1) * n) times
+evolve :: Network -> IO Network
+evolve n = evolve' n (2 * l * (l - 1))
+  where l = length (values n)
+
+evolve' :: Network -> Int -> IO Network
+evolve' n t = do
+  nn <- step n
+  evolve' nn (t - 1)
+
+-- Make one random neural computation.
+-- Todo: join, but how?
+step :: Network -> IO Network
+step n = do
+  is <- (uniqueIndices (length (values n)))
+  let cv = (values n) !! (fst is)
+      w = getWeight (fst is) (snd is) n
+      t = (thresholds n) !! (snd is)
       str = round $ (fromIntegral cv) * w
   if str > t
-    then setValueInNet str (snd is) ns
-    else ns
+    then return $ Network (update str (snd is) (values n)) (thresholds n) (weights n)
+         else return n
 
 -- Compute two unique numbers with a given maximum.
 uniqueIndices :: Int -> IO (Int, Int)
@@ -37,68 +47,31 @@ uniqueIndices m = do
   let j = (except i [0..m]) !! r
   return (i, j)
 
--- Print value in network at given index.
-printValue :: Int -> IO [Node] -> IO ()
-printValue i ns = do
-  n <- fmap (!! i) ns
-  print (getValue n)
-
--- Set Node value for a network at a given index.
--- Todo: Give this function a better name
-setValueInNet :: Int -> Int -> IO [Node] -> IO [Node]
-setValueInNet v i ns = do
-  n <- fmap (!! i) ns
-  pns <- ns
-  return $ update (setValue v n) i pns
+-- Get weight between two nodes for RNN.
+getWeight :: Int -> Int -> Network -> Double
+getWeight a b n = (weights n) !! ((a * b) - 1)
 
 -- Change element in List at given index.
 update :: a -> Int -> [a] -> [a]
 update v i xs = (take i xs) ++ [v] ++ (drop (i + 1) xs)
 
--- Get Node value.
-getValue :: Node -> Int
-getValue (N _ v) = v
-
--- Get Node threshold.
-getThreshold :: Node -> Int
-getThreshold (N t _) = t
-
--- Change Node value.
-setValue :: Int -> Node -> Node
-setValue nv (N t v) = (N t nv)
-
--- Create network of given size.
-createNetwork :: Int -> IO [Node]
-createNetwork 0 = return []
+-- Create Network of given size.
+createNetwork :: Integer -> IO Network
 createNetwork n = do
-  rt <- randomRIO (0, maxAmplitude)
-  ns <- createNetwork (n - 1)
-  return $ (N rt 0) : ns
+  vs <- randomIntegers n (-maxAmplitude) maxAmplitude
+  ts <- randomIntegers n (-maxAmplitude) maxAmplitude
+  ws <- randomIntegers (n * (n - 1)) 0.5 2.0
+  return $ Network vs ts ws
 
--- Create weights for RNN.
--- Note: In ghci, these values change each time they are requested,
--- but this should not happen in the final program because the
--- function will only be called once.
-createWeights :: Int -> IO [Double]
-createWeights n = sequence $
-                  map randomRIO $
-                  replicate (n * (n - 1)) (0.5, 2.0)
-
--- Get weight between two nodes for RNN.
-getWeight :: Int -> Int -> [Double] -> Double
-getWeight a b ws = ws !! ((a * b) - 1)
-
--- Print weights since Show apparently doesn't work with Lists with
--- IO elements.
--- Note: Deprecated (due to IO sequencing)
-printWeights :: [IO Double] -> IO ()
-printWeights [w] = do
-  p <- w
-  print p
-printWeights (w:ws) = do
-  p <- w
-  print p
-  printWeights ws
+-- Generate a List of random numbers.  Takes length, min and max as
+-- parameters.
+-- Note: `replicate' could be used instead of recursion.
+randomIntegers :: (Random a) => Integer -> a -> a -> IO [a]
+randomIntegers 0 _ _ = return []
+randomIntegers r f t = do
+  rt <- randomRIO (f, t)
+  xs <- randomIntegers (r - 1) f t
+  return $ rt : xs
 
 -- Takes a list and returns the same list except element at given
 -- index.
