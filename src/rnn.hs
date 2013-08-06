@@ -21,16 +21,16 @@ maxAmplitude = 2147483647 :: Integer
 -- returned.
 mesh :: Network -> Integer -> IO [Integer]
 mesh n t = mesh' n t []
-
-mesh' :: Network -> Integer -> [Integer] -> IO [Integer]
-mesh' n 1 vs = do
-  nn <- step n
-  return $ values nn
-mesh' n t vs = do
-  nn <- step n
-  nivs <- mesh' n (t - 1) vs
-  let nvs = values nn
-  return $ nvs ++ nivs
+  where
+    mesh' :: Network -> Integer -> [Integer] -> IO [Integer]
+    mesh' n 1 vs = do
+      nn <- step n
+      return $ values nn
+    mesh' n t vs = do
+      nn <- step n
+      nivs <- mesh' n (t - 1) vs
+      let nvs = values nn
+      return $ nvs ++ nivs
 
 -- Make one random neural computation.
 step :: Network -> IO Network

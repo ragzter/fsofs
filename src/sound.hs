@@ -5,9 +5,10 @@ module Sound
 , saw
 , sine
 , mix
+, fadeOut
 ) where
 
-import RNN
+import Convert
 
 sampleRate = 44100
 channel = []
