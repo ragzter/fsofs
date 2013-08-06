@@ -16,6 +16,21 @@ data Network = Network { values :: [Integer]
 
 maxAmplitude = 2147483647 :: Integer
 
+-- Evolve network and append evolved values to a list which is
+-- returned.
+mesh :: Network -> Integer -> IO [Integer]
+mesh n t = mesh' n t []
+
+mesh' :: Network -> Integer -> [Integer] -> IO [Integer]
+mesh' n 1 vs = do
+  nn <- evolve n
+  return $ values nn
+mesh' n t vs = do
+  nn <- evolve n
+  nivs <- mesh' n (t - 1) vs
+  let nvs = values nn
+  return $ nvs ++ nivs
+
 -- Step Network (n * (n - 1) * n) times.
 evolve :: Network -> IO Network
 evolve n = evolve' n (2 * l * (l - 1))
