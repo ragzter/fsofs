@@ -16,18 +16,18 @@ data Network = Network { values :: [Integer]
 
 maxAmplitude = 2147483647 :: Integer
 
--- Step Network (n * (n - 1) * n) times
+-- Step Network (n * (n - 1) * n) times.
 evolve :: Network -> IO Network
 evolve n = evolve' n (2 * l * (l - 1))
   where l = length (values n)
 
 evolve' :: Network -> Int -> IO Network
+evolve' n 1 = step n
 evolve' n t = do
   nn <- step n
   evolve' nn (t - 1)
 
 -- Make one random neural computation.
--- Todo: join, but how?
 step :: Network -> IO Network
 step n = do
   is <- (uniqueIndices (length (values n)))
