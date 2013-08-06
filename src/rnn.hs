@@ -3,6 +3,7 @@ module RNN
 ( createNetwork
 , evolve
 , values
+, mesh
 ) where
 
 import Data.List
